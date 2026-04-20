@@ -74,6 +74,11 @@ const github = {
     ipcRenderer.invoke('github:searchRepos', query),
   listMyRepos: (): Promise<ApiResult<GithubRepoSummary[]>> =>
     ipcRenderer.invoke('github:listMyRepos'),
+  createIssue: (
+    repoFullName: string,
+    input: { title: string; body?: string; labels?: string[] },
+  ): Promise<ApiResult<BoardCard>> =>
+    ipcRenderer.invoke('github:createIssue', repoFullName, input),
 }
 
 const board = {
@@ -90,14 +95,25 @@ const board = {
 
 const repos = {
   list: (): Promise<ApiResult<WatchedRepo[]>> => ipcRenderer.invoke('repos:list'),
-  add: (fullName: string, localPath?: string): Promise<ApiResult<WatchedRepo>> =>
-    ipcRenderer.invoke('repos:add', fullName, localPath),
+  addGithub: (fullName: string, localPath?: string): Promise<ApiResult<WatchedRepo>> =>
+    ipcRenderer.invoke('repos:addGithub', fullName, localPath),
+  addLocal: (name: string, localPath?: string): Promise<ApiResult<WatchedRepo>> =>
+    ipcRenderer.invoke('repos:addLocal', name, localPath),
   remove: (id: string): Promise<ApiResult<boolean>> => ipcRenderer.invoke('repos:remove', id),
+  update: (
+    id: string,
+    patch: Partial<Pick<WatchedRepo, 'fullName' | 'localPath'>>,
+  ): Promise<ApiResult<WatchedRepo>> => ipcRenderer.invoke('repos:update', id, patch),
   setLocalPath: (id: string, localPath: string | null): Promise<ApiResult<boolean>> =>
     ipcRenderer.invoke('repos:setLocalPath', id, localPath),
   syncAll: (): Promise<
     ApiResult<{ cards: BoardCard[]; errors: Array<{ repo: string; message: string }> }>
   > => ipcRenderer.invoke('repos:syncAll'),
+}
+
+const dialog = {
+  selectDirectory: (defaultPath?: string): Promise<ApiResult<string | null>> =>
+    ipcRenderer.invoke('dialog:selectDirectory', defaultPath),
 }
 
 const cloud = {
@@ -108,7 +124,7 @@ const cloud = {
   patchCards: (): Promise<ApiResult<null>> => ipcRenderer.invoke('cloud:patchCards'),
 }
 
-export const api = { terminal, store, auth, github, board, repos, cloud }
+export const api = { terminal, store, auth, github, board, repos, dialog, cloud }
 export type GitPanelApi = typeof api
 
 contextBridge.exposeInMainWorld('api', api)

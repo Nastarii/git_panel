@@ -88,6 +88,47 @@ export function registerGithubIpc(): void {
     }
   })
 
+  ipcMain.handle('github:createIssue', async (
+    _evt,
+    repoFullName: string,
+    input: { title: string; body?: string; labels?: string[] },
+  ) => {
+    const octo = client()
+    if (!octo) return { data: null, error: { code: 'NOT_CONFIGURED', message: 'GitHub auth not configured' } }
+    const [owner, name] = repoFullName.split('/')
+    if (!owner || !name) return { data: null, error: { code: 'BAD_REPO', message: `Invalid repo: ${repoFullName}` } }
+    try {
+      const { data } = await octo.issues.create({
+        owner,
+        repo: name,
+        title: input.title,
+        body: input.body,
+        labels: input.labels,
+      })
+      const card: BoardCard = {
+        id: `gh:${repoFullName}#${data.number}`,
+        provider: 'github',
+        githubId: data.id,
+        title: data.title,
+        body: data.body ?? undefined,
+        type: 'issue',
+        state: 'open',
+        repo: repoFullName,
+        url: data.html_url,
+        labels: (data.labels ?? [])
+          .map((l) => (typeof l === 'string' ? l : l.name ?? ''))
+          .filter(Boolean) as string[],
+        column: 'backlog',
+        position: Date.now(),
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+      }
+      return { data: card, error: null }
+    } catch (err) {
+      return { data: null, error: { code: 'GITHUB_ERROR', message: (err as Error).message } }
+    }
+  })
+
   ipcMain.handle('github:listMyRepos', async () => {
     const octo = client()
     if (!octo) return { data: null, error: { code: 'NOT_CONFIGURED', message: 'GitHub auth not configured' } }

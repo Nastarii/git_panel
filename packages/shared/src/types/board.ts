@@ -29,7 +29,8 @@ export type BoardCard = {
   body?: string
   type: CardType
   state: CardState
-  repo?: string
+  repo?: string            // display — "owner/repo" for github, project name for local
+  repoId?: string          // stable reference to a WatchedRepo (github or local kind)
   url?: string
   labels: string[]
   assignee?: string
@@ -43,7 +44,7 @@ export type BoardCard = {
 
 export type CardPatch = Pick<BoardCard, 'id' | 'column' | 'position'>
 export type NewLocalCard = Pick<BoardCard, 'title'> &
-  Partial<Pick<BoardCard, 'body' | 'labels' | 'priority' | 'column' | 'assignee'>>
+  Partial<Pick<BoardCard, 'body' | 'labels' | 'priority' | 'column' | 'assignee' | 'repoId'>>
 
 export type Board = {
   id: string

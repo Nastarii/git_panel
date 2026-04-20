@@ -43,6 +43,7 @@ export function registerBoardIpc(): void {
       labels: input.labels ?? [],
       assignee: input.assignee,
       priority: input.priority,
+      repoId: input.repoId,
       column: input.column ?? 'backlog',
       position: Date.now(),
       createdAt: now,

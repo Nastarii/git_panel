@@ -16,6 +16,7 @@ type BoardState = {
   createLocal: (input: NewLocalCard) => Promise<void>
   updateLocal: (id: string, patch: Partial<BoardCard>) => Promise<void>
   deleteLocal: (id: string) => Promise<void>
+  addCardFromGithub: (card: BoardCard) => void
 
   moveCard: (id: string, column: ColumnId, position: number) => void
   persistMove: (patches: CardPatch[]) => Promise<void>
@@ -81,6 +82,15 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   deleteLocal: async (id) => {
     await window.api.board.deleteLocal(id)
     set((s) => ({ cards: s.cards.filter((c) => c.id !== id) }))
+  },
+
+  addCardFromGithub: (card) => {
+    set((s) => {
+      // Avoid duplicates if sync races with manual creation.
+      const existing = s.cards.some((c) => c.id === card.id)
+      const next = existing ? s.cards.map((c) => (c.id === card.id ? card : c)) : [...s.cards, card]
+      return { cards: next.sort(sortByPosition) }
+    })
   },
 
   moveCard: (id, column, position) => {

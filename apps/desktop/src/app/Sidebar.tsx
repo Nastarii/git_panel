@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore'
 
 const links: Array<{ id: View; label: string; icon: string }> = [
   { id: 'board', label: 'Board', icon: '▤' },
-  { id: 'repos', label: 'Repositories', icon: '▣' },
+  { id: 'repos', label: 'Projects', icon: '▣' },
   { id: 'metrics', label: 'Metrics', icon: '▲' },
   { id: 'team', label: 'Team', icon: '●' },
   { id: 'terminal', label: 'Terminal', icon: '>_' },

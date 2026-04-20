@@ -6,12 +6,15 @@ export type GithubUser = {
   avatarUrl?: string
 }
 
+export type RepoKind = 'github' | 'local'
+
 export type WatchedRepo = {
   id: string
-  fullName: string
-  owner: string
-  name: string
-  localPath?: string
+  kind: RepoKind            // 'github' = synced via API; 'local' = manual project on disk
+  fullName: string          // for github: "owner/repo"; for local: display name
+  owner?: string            // github only
+  name?: string             // github only (short name)
+  localPath?: string        // optional clone / folder location
   defaultBranch?: string
   private: boolean
   addedAt: string

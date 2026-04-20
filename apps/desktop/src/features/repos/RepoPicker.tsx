@@ -23,7 +23,7 @@ type Props = {
 
 export function RepoPicker({ open, onClose, onAdded }: Props) {
   const watched = useReposStore((s) => s.repos)
-  const add = useReposStore((s) => s.add)
+  const addGithub = useReposStore((s) => s.addGithub)
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -45,7 +45,11 @@ export function RepoPicker({ open, onClose, onAdded }: Props) {
   }, [open])
 
   const watchedNames = useMemo(
-    () => new Set(watched.map((r) => r.fullName.toLowerCase())),
+    () => new Set(
+      watched
+        .filter((r) => r.kind === 'github')
+        .map((r) => r.fullName.toLowerCase()),
+    ),
     [watched],
   )
 
@@ -76,7 +80,7 @@ export function RepoPicker({ open, onClose, onAdded }: Props) {
     setAdding(true)
     let count = 0
     for (const fullName of selected) {
-      const err = await add(fullName)
+      const err = await addGithub(fullName)
       if (!err) count++
     }
     setAdding(false)

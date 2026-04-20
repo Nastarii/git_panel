@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { BoardCard as Card } from '@shared/types/board'
+import { useReposStore } from '@/store/reposStore'
 
 type Props = {
   card: Card
@@ -16,6 +17,9 @@ const priorityDot: Record<string, string> = {
 }
 
 export function BoardCardView({ card, onClick }: Props) {
+  const repo = useReposStore((s) => (card.repoId ? s.repos.find((r) => r.id === card.repoId) : undefined))
+  const displayRepo = card.repo ?? repo?.fullName
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: card.id,
     data: { column: card.column, card },
@@ -47,8 +51,12 @@ export function BoardCardView({ card, onClick }: Props) {
         )}
         <div className="flex-1 min-w-0">
           <div className="text-panel-text font-medium leading-snug">{card.title}</div>
-          {card.repo && (
-            <div className="mt-1 font-mono text-[10px] text-panel-muted truncate">{card.repo}{card.githubId ? ` #${card.id.split('#').pop()}` : ''}</div>
+          {displayRepo && (
+            <div className="mt-1 font-mono text-[10px] text-panel-muted truncate">
+              {displayRepo}
+              {card.githubId ? ` #${card.id.split('#').pop()}` : ''}
+              {repo?.kind === 'local' && ' · local'}
+            </div>
           )}
           {card.labels.length > 0 && (
             <div className="mt-1.5 flex flex-wrap gap-1">

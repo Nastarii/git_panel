@@ -5,9 +5,11 @@ type ReposState = {
   repos: WatchedRepo[]
   loading: boolean
   refresh: () => Promise<void>
-  add: (fullName: string, localPath?: string) => Promise<string | null>
+  addGithub: (fullName: string, localPath?: string) => Promise<string | null>
+  addLocal: (name: string, localPath?: string) => Promise<string | null>
   remove: (id: string) => Promise<void>
   setLocalPath: (id: string, localPath: string | null) => Promise<void>
+  rename: (id: string, fullName: string) => Promise<string | null>
 }
 
 export const useReposStore = create<ReposState>((set, get) => ({
@@ -20,13 +22,22 @@ export const useReposStore = create<ReposState>((set, get) => ({
     set({ repos: res.data ?? [], loading: false })
   },
 
-  add: async (fullName, localPath) => {
-    const res = await window.api.repos.add(fullName, localPath)
+  addGithub: async (fullName, localPath) => {
+    const res = await window.api.repos.addGithub(fullName, localPath)
     if (res.data) {
       set({ repos: [...get().repos, res.data] })
       return null
     }
-    return res.error?.message ?? 'Failed to add repo'
+    return res.error?.message ?? 'Failed to add repository'
+  },
+
+  addLocal: async (name, localPath) => {
+    const res = await window.api.repos.addLocal(name, localPath)
+    if (res.data) {
+      set({ repos: [...get().repos, res.data] })
+      return null
+    }
+    return res.error?.message ?? 'Failed to add local project'
   },
 
   remove: async (id) => {
@@ -39,5 +50,14 @@ export const useReposStore = create<ReposState>((set, get) => ({
     set({
       repos: get().repos.map((r) => (r.id === id ? { ...r, localPath: localPath ?? undefined } : r)),
     })
+  },
+
+  rename: async (id, fullName) => {
+    const res = await window.api.repos.update(id, { fullName })
+    if (res.data) {
+      set({ repos: get().repos.map((r) => (r.id === id ? res.data! : r)) })
+      return null
+    }
+    return res.error?.message ?? 'Failed to rename'
   },
 }))

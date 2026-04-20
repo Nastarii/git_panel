@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useTerminalStore } from '@/store/terminalStore'
 import { TerminalTabs } from './TerminalTabs'
 import { TerminalToolbar } from './TerminalToolbar'
@@ -8,10 +8,14 @@ export function TerminalPanel() {
   const tabs = useTerminalStore((s) => s.tabs)
   const activeId = useTerminalStore((s) => s.activeTabId)
   const openTab = useTerminalStore((s) => s.openTab)
+  const initRef = useRef(false)
 
+  // Auto-open first tab once. Guarded against React StrictMode double-invoke.
   useEffect(() => {
-    if (tabs.length === 0) void openTab()
-  }, [tabs.length, openTab])
+    if (initRef.current) return
+    initRef.current = true
+    if (useTerminalStore.getState().tabs.length === 0) void openTab()
+  }, [openTab])
 
   return (
     <div className="flex h-full flex-col bg-panel-bg">

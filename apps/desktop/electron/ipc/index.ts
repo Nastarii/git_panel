@@ -5,6 +5,7 @@ import { registerAuthIpc } from './auth'
 import { registerGithubIpc } from './github'
 import { registerBoardIpc } from './board'
 import { registerReposIpc } from './repos'
+import { registerDialogIpc } from './dialog'
 import { registerCloudIpc } from './cloud'
 
 export type WindowProvider = () => BrowserWindow | null
@@ -16,6 +17,7 @@ export function registerIpc(getWindow: WindowProvider): void {
   registerGithubIpc()
   registerBoardIpc()
   registerReposIpc()
+  registerDialogIpc(getWindow)
   registerCloudIpc()
 }
 
