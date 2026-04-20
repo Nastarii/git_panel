@@ -4,6 +4,9 @@ import type { BoardCard, CardPatch, ColumnId, NewLocalCard } from '@shared/types
 type BoardState = {
   cards: BoardCard[]
   syncErrors: Array<{ repo: string; message: string }>
+  syncError: string | null          // top-level error (e.g. not authenticated)
+  lastSyncedCount: number | null    // total GitHub cards returned by the most recent sync
+  lastSyncedAt: string | null
   loading: boolean
   syncing: boolean
 
@@ -25,6 +28,9 @@ function sortByPosition(a: BoardCard, b: BoardCard): number {
 export const useBoardStore = create<BoardState>((set, get) => ({
   cards: [],
   syncErrors: [],
+  syncError: null,
+  lastSyncedCount: null,
+  lastSyncedAt: null,
   loading: false,
   syncing: false,
 
@@ -38,17 +44,23 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   },
 
   sync: async () => {
-    set({ syncing: true })
+    set({ syncing: true, syncError: null })
     const res = await window.api.repos.syncAll()
     if (res.data) {
       const local = get().cards.filter((c) => c.provider === 'local')
       set({
         cards: [...local, ...res.data.cards].sort(sortByPosition),
         syncErrors: res.data.errors,
+        syncError: null,
+        lastSyncedCount: res.data.cards.length,
+        lastSyncedAt: new Date().toISOString(),
         syncing: false,
       })
     } else {
-      set({ syncing: false })
+      set({
+        syncError: res.error?.message ?? 'Sync failed',
+        syncing: false,
+      })
     }
   },
 

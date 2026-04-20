@@ -86,25 +86,54 @@ function cancelFlow(): void {
 }
 
 async function startDeviceFlow(clientId: string): Promise<DeviceCodeResponse> {
+  const body = new URLSearchParams({
+    client_id: clientId,
+    scope: 'repo read:user read:org',
+  })
   const res = await fetch('https://github.com/login/device/code', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ client_id: clientId, scope: 'repo read:user read:org' }),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Accept: 'application/json',
+      'User-Agent': 'GitPanel',
+    },
+    body,
   })
-  if (!res.ok) throw new Error(`device/code request failed (${res.status})`)
-  const json = (await res.json()) as {
-    device_code: string
-    user_code: string
-    verification_uri: string
-    expires_in: number
-    interval: number
+
+  const raw = await res.text()
+  if (!res.ok) {
+    const hint =
+      res.status === 404
+        ? ' — check that "Enable Device Flow" is on in your OAuth App settings, and that GITHUB_CLIENT_ID matches the app (not a client secret or GitHub App installation ID).'
+        : ''
+    throw new Error(`device/code failed (${res.status})${hint}${raw ? ` · body: ${raw.slice(0, 200)}` : ''}`)
   }
+
+  let json: {
+    device_code?: string
+    user_code?: string
+    verification_uri?: string
+    expires_in?: number
+    interval?: number
+    error?: string
+    error_description?: string
+  }
+  try {
+    json = JSON.parse(raw)
+  } catch {
+    throw new Error(`device/code returned non-JSON body: ${raw.slice(0, 200)}`)
+  }
+
+  if (json.error || !json.device_code) {
+    throw new Error(json.error_description ?? json.error ?? 'device/code returned no device_code')
+  }
+
   return {
     deviceCode: json.device_code,
-    userCode: json.user_code,
-    verificationUri: json.verification_uri,
-    expiresIn: json.expires_in,
-    interval: json.interval,
+    userCode: json.user_code!,
+    verificationUri: json.verification_uri!,
+    expiresIn: json.expires_in!,
+    interval: json.interval ?? 5,
   }
 }
 
@@ -127,14 +156,19 @@ async function pollDeviceFlow(
     interval?: number
   }
   try {
+    const form = new URLSearchParams({
+      client_id: clientId,
+      device_code: flow.deviceCode,
+      grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+    })
     const res = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
-        client_id: clientId,
-        device_code: flow.deviceCode,
-        grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
-      }),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+        'User-Agent': 'GitPanel',
+      },
+      body: form,
     })
     body = (await res.json()) as typeof body
   } catch (err) {

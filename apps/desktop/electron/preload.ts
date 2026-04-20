@@ -53,12 +53,27 @@ const auth = {
   },
 }
 
+export type GithubRepoSummary = {
+  id: number
+  fullName: string
+  owner: string
+  name: string
+  private: boolean
+  description?: string
+  defaultBranch: string
+  updatedAt: string | null
+  openIssues: number
+  archived: boolean
+}
+
 const github = {
   me: (): Promise<ApiResult<unknown>> => ipcRenderer.invoke('github:me'),
   fetchRepoCards: (repo: string): Promise<ApiResult<BoardCard[]>> =>
     ipcRenderer.invoke('github:fetchRepoCards', repo),
   searchRepos: (query: string): Promise<ApiResult<unknown>> =>
     ipcRenderer.invoke('github:searchRepos', query),
+  listMyRepos: (): Promise<ApiResult<GithubRepoSummary[]>> =>
+    ipcRenderer.invoke('github:listMyRepos'),
 }
 
 const board = {

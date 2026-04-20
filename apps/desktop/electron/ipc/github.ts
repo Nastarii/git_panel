@@ -87,4 +87,32 @@ export function registerGithubIpc(): void {
       return { data: null, error: { code: 'GITHUB_ERROR', message: (err as Error).message } }
     }
   })
+
+  ipcMain.handle('github:listMyRepos', async () => {
+    const octo = client()
+    if (!octo) return { data: null, error: { code: 'NOT_CONFIGURED', message: 'GitHub auth not configured' } }
+    try {
+      // Paginate across all affiliations so users see personal + org repos.
+      const repos = await octo.paginate(octo.repos.listForAuthenticatedUser, {
+        per_page: 100,
+        sort: 'updated',
+        affiliation: 'owner,collaborator,organization_member',
+      })
+      const simplified = repos.map((r) => ({
+        id: r.id,
+        fullName: r.full_name,
+        owner: r.owner.login,
+        name: r.name,
+        private: r.private,
+        description: r.description ?? undefined,
+        defaultBranch: r.default_branch,
+        updatedAt: r.updated_at,
+        openIssues: r.open_issues_count,
+        archived: r.archived,
+      }))
+      return { data: simplified, error: null }
+    } catch (err) {
+      return { data: null, error: { code: 'GITHUB_ERROR', message: (err as Error).message } }
+    }
+  })
 }

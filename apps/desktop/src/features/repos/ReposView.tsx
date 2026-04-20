@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useReposStore } from '@/store/reposStore'
 import { useAuthStore } from '@/store/authStore'
 import { useBoardStore } from '@/store/boardStore'
+import { RepoPicker } from './RepoPicker'
 
 export function ReposView() {
   const repos = useReposStore((s) => s.repos)
@@ -11,13 +12,25 @@ export function ReposView() {
   const authMode = useAuthStore((s) => s.status?.mode ?? 'none')
   const sync = useBoardStore((s) => s.sync)
   const syncing = useBoardStore((s) => s.syncing)
+  const syncErrors = useBoardStore((s) => s.syncErrors)
+  const syncError = useBoardStore((s) => s.syncError)
+  const lastSyncedCount = useBoardStore((s) => s.lastSyncedCount)
+  const lastSyncedAt = useBoardStore((s) => s.lastSyncedAt)
 
   const [input, setInput] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [flash, setFlash] = useState<string | null>(null)
 
   useEffect(() => { void refresh() }, [refresh])
 
-  const handleAdd = async () => {
+  useEffect(() => {
+    if (!flash) return
+    const t = setTimeout(() => setFlash(null), 4000)
+    return () => clearTimeout(t)
+  }, [flash])
+
+  const handleAdd = async (): Promise<void> => {
     setError(null)
     const fullName = input.trim()
     if (!fullName.includes('/')) {
@@ -28,7 +41,19 @@ export function ReposView() {
     if (err) setError(err)
     else {
       setInput('')
-      if (authMode !== 'none') void sync()
+      if (authMode !== 'none') {
+        await sync()
+        setFlash(`Added ${fullName} — pulled into board.`)
+      } else {
+        setFlash(`Added ${fullName}. Sign in to GitHub to pull its issues.`)
+      }
+    }
+  }
+
+  const handlePickerAdded = async (count: number): Promise<void> => {
+    if (count > 0) {
+      await sync()
+      setFlash(`Added ${count} repositor${count === 1 ? 'y' : 'ies'} — pulled into board.`)
     }
   }
 
@@ -43,16 +68,51 @@ export function ReposView() {
               : 'Open issues and PRs from these repositories are pulled into your board on sync.'}
           </p>
         </div>
-        <button
-          onClick={() => void sync()}
-          disabled={syncing || authMode === 'none'}
-          className="btn disabled:opacity-50"
-        >
-          {syncing ? 'Syncing…' : 'Sync all'}
-        </button>
+        <div className="flex gap-2">
+          {authMode !== 'none' && (
+            <button onClick={() => setPickerOpen(true)} className="btn">
+              Browse my repos…
+            </button>
+          )}
+          <button
+            onClick={() => void sync()}
+            disabled={syncing || authMode === 'none' || repos.length === 0}
+            className="btn-primary disabled:opacity-50"
+          >
+            {syncing ? 'Syncing…' : 'Sync all'}
+          </button>
+        </div>
       </header>
 
       <div className="p-5 space-y-4 max-w-3xl w-full">
+        {flash && (
+          <div className="rounded-md border border-panel-success/40 bg-panel-success/10 px-3 py-2 text-xs text-panel-success">
+            {flash}
+          </div>
+        )}
+        {syncError && (
+          <div className="rounded-md border border-panel-danger/40 bg-panel-danger/10 px-3 py-2 text-xs text-panel-danger">
+            Sync failed: {syncError}
+          </div>
+        )}
+        {syncErrors.length > 0 && (
+          <div className="rounded-md border border-panel-warning/40 bg-panel-warning/10 px-3 py-2 text-xs text-panel-warning">
+            <div className="font-semibold mb-1">Some repositories failed to sync:</div>
+            <ul className="space-y-0.5">
+              {syncErrors.map((e) => (
+                <li key={e.repo}>
+                  <span className="font-mono">{e.repo}</span>: {e.message}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {lastSyncedAt && !syncError && (
+          <div className="text-[10px] text-panel-muted">
+            Last sync: {new Date(lastSyncedAt).toLocaleTimeString()} · {lastSyncedCount ?? 0} cards
+          </div>
+        )}
+
         <div className="flex gap-2">
           <input
             value={input}
@@ -68,7 +128,7 @@ export function ReposView() {
         <div className="space-y-1">
           {repos.length === 0 ? (
             <div className="text-sm text-panel-muted py-6 text-center border border-dashed border-panel-border rounded-md">
-              No repositories yet. Add one above.
+              No repositories yet. {authMode !== 'none' ? 'Click "Browse my repos" or' : 'Add a repo by typing'} <span className="font-mono">owner/repo</span> above.
             </div>
           ) : (
             repos.map((repo) => (
@@ -94,6 +154,12 @@ export function ReposView() {
           )}
         </div>
       </div>
+
+      <RepoPicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onAdded={(n) => void handlePickerAdded(n)}
+      />
     </div>
   )
 }

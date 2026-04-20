@@ -23,6 +23,7 @@ export function BoardView() {
   const sync = useBoardStore((s) => s.sync)
   const syncing = useBoardStore((s) => s.syncing)
   const syncErrors = useBoardStore((s) => s.syncErrors)
+  const syncError = useBoardStore((s) => s.syncError)
   const persistMove = useBoardStore((s) => s.persistMove)
   const moveCard = useBoardStore((s) => s.moveCard)
 
@@ -148,8 +149,13 @@ export function BoardView() {
         </div>
       </header>
 
-      {syncErrors.length > 0 && (
+      {syncError && (
         <div className="border-b border-panel-border bg-panel-danger/10 px-5 py-2 text-xs text-panel-danger">
+          Sync failed: {syncError}
+        </div>
+      )}
+      {syncErrors.length > 0 && (
+        <div className="border-b border-panel-border bg-panel-warning/10 px-5 py-2 text-xs text-panel-warning">
           {syncErrors.length} repo(s) failed to sync: {syncErrors.map((e) => e.repo).join(', ')}
         </div>
       )}

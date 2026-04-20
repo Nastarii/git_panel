@@ -1,11 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,
+    "noEmit": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "types": ["node", "electron"],
-    "outDir": "out/types-node",
     "paths": {
       "@shared/*": ["../../packages/shared/src/*"],
       "@shared": ["../../packages/shared/src/index.ts"]
@@ -13,6 +12,7 @@
   },
   "include": [
     "electron/**/*.ts",
-    "electron.vite.config.ts"
+    "electron.vite.config.ts",
+    "../../packages/shared/src/**/*.ts"
   ]
 }
