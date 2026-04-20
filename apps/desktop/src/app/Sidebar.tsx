@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
 import clsx from 'clsx'
 import { useUIStore, type View } from '@/store/uiStore'
+import { useAuthStore } from '@/store/authStore'
 
 const links: Array<{ id: View; label: string; icon: string }> = [
   { id: 'board', label: 'Board', icon: '▤' },
@@ -10,10 +12,22 @@ const links: Array<{ id: View; label: string; icon: string }> = [
   { id: 'settings', label: 'Settings', icon: '⚙' },
 ]
 
+function modeLabel(mode: string): string {
+  switch (mode) {
+    case 'env-token': return 'via .env'
+    case 'oauth-device': return 'OAuth'
+    default: return 'not signed in'
+  }
+}
+
 export function Sidebar() {
   const view = useUIStore((s) => s.view)
   const setView = useUIStore((s) => s.setView)
   const toggleTerminal = useUIStore((s) => s.toggleTerminal)
+  const status = useAuthStore((s) => s.status)
+  const refresh = useAuthStore((s) => s.refresh)
+
+  useEffect(() => { void refresh() }, [refresh])
 
   return (
     <aside className="w-52 shrink-0 flex-col border-r border-panel-border bg-panel-surface/40 flex">
@@ -40,8 +54,22 @@ export function Sidebar() {
         ))}
       </nav>
       <div className="border-t border-panel-border p-3 text-xs text-panel-muted">
-        <div>Local mode</div>
-        <div className="font-mono truncate">not signed in</div>
+        {status?.user ? (
+          <div className="flex items-center gap-2">
+            {status.user.avatarUrl && (
+              <img src={status.user.avatarUrl} alt={status.user.login} className="h-6 w-6 rounded-full" />
+            )}
+            <div className="min-w-0">
+              <div className="truncate text-panel-text">{status.user.login}</div>
+              <div className="truncate">{modeLabel(status.mode)}</div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div>Local mode</div>
+            <div className="font-mono truncate">{modeLabel(status?.mode ?? 'none')}</div>
+          </>
+        )}
       </div>
     </aside>
   )

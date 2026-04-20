@@ -15,6 +15,9 @@
     "clean": "rimraf out dist .vite .turbo"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.1.0",
+    "@dnd-kit/sortable": "^8.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@gitpanel/shared": "*",
     "@octokit/rest": "^20.1.1",
     "@octokit/graphql": "^7.1.1",
@@ -22,6 +25,7 @@
     "@xterm/addon-web-links": "^0.11.0",
     "@xterm/xterm": "^5.5.0",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.5",
     "electron-store": "^8.2.0",
     "node-pty": "^1.0.0",
     "react": "^18.3.1",
