@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root { height: 100%; }
+  body { overflow: hidden; }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-md border border-panel-border bg-panel-surface px-3 py-1.5 text-sm text-panel-text hover:border-panel-accent hover:text-panel-accent transition-colors;
+  }
+  .btn-primary {
+    @apply btn border-panel-accent bg-panel-accent/10 text-panel-accent;
+  }
+  .sidebar-link {
+    @apply flex items-center gap-2 rounded-md px-3 py-2 text-sm text-panel-muted hover:bg-panel-surface hover:text-panel-text cursor-pointer transition-colors;
+  }
+  .sidebar-link-active {
+    @apply bg-panel-surface text-panel-accent;
+  }
+}
+
+/* xterm.js container */
+.xterm-container { padding: 8px; }
+.xterm .xterm-viewport { background-color: transparent !important; }
