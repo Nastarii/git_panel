@@ -467,17 +467,33 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           return { content: [{ type: 'text', text: 'No projects configured.' }] }
         }
 
-        const lines = filtered.map((r) => {
-          const parts = [
-            `[${r.id}]`,
-            r.kind.toUpperCase(),
-            r.fullName,
-            r.private ? '(private)' : '',
-            r.localPath ? `→ ${r.localPath}` : '',
-          ].filter(Boolean)
-          return parts.join(' ')
-        })
-        return { content: [{ type: 'text', text: lines.join('\n') }] }
+        const github = filtered.filter((r) => r.kind === 'github')
+        const local = filtered.filter((r) => r.kind === 'local')
+
+        const formatRepo = (r: WatchedRepo): string => {
+          const lines: string[] = [`  [${r.id}]  ${r.fullName}${r.private ? '  (private)' : ''}`]
+          if (r.kind === 'github') {
+            lines.push(`    github url : https://github.com/${r.fullName}`)
+            lines.push(`    local path : ${r.localPath ?? '(not linked to a local folder)'}`)
+            if (r.defaultBranch) lines.push(`    branch     : ${r.defaultBranch}`)
+          } else {
+            lines.push(`    local path : ${r.localPath ?? '(no folder linked)'}`)
+          }
+          lines.push(`    added      : ${new Date(r.addedAt).toLocaleDateString()}`)
+          return lines.join('\n')
+        }
+
+        const sections: string[] = []
+        if (github.length > 0) {
+          sections.push(`GitHub repositories (${github.length}):`)
+          sections.push(...github.map(formatRepo))
+        }
+        if (local.length > 0) {
+          sections.push(`\nLocal projects (${local.length}):`)
+          sections.push(...local.map(formatRepo))
+        }
+
+        return { content: [{ type: 'text', text: sections.join('\n') }] }
       }
 
       case 'create_github_issue': {

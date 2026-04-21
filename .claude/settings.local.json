@@ -5,7 +5,8 @@
       "Bash(timeout 5 node dist/index.js)",
       "Bash(echo \"exit $?\")",
       "Bash(GITPANEL_DATA_DIR=\"/nonexistent\" node dist/index.js)",
-      "Bash(node dist/index.js)"
+      "Bash(node dist/index.js)",
+      "Bash(node -e \"process.stdin.resume\\(\\);let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const r=JSON.parse\\(d\\);console.log\\(r.result.content[0].text\\)}\\)\")"
     ]
   }
 }
