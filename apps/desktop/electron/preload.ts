@@ -91,6 +91,11 @@ const board = {
   applyPatches: (patches: CardPatch[]): Promise<ApiResult<boolean>> =>
     ipcRenderer.invoke('board:applyPatches', patches),
   clearOverrides: (): Promise<ApiResult<boolean>> => ipcRenderer.invoke('board:clearOverrides'),
+  onExternalChange: (cb: () => void): (() => void) => {
+    const handler = () => cb()
+    ipcRenderer.on('board:external-change', handler)
+    return () => ipcRenderer.removeListener('board:external-change', handler)
+  },
 }
 
 const repos = {

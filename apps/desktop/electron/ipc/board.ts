@@ -1,6 +1,8 @@
 import { ipcMain } from 'electron'
 import Store from 'electron-store'
+import { watch, type FSWatcher } from 'node:fs'
 import { randomUUID } from 'node:crypto'
+import type { BrowserWindow } from 'electron'
 import type { BoardCard, CardPatch, NewLocalCard } from '@shared/types/board'
 
 type Override = { column: BoardCard['column']; position: number; updatedAt: string }
@@ -25,7 +27,24 @@ export function applyOverrides(cards: BoardCard[]): BoardCard[] {
   })
 }
 
-export function registerBoardIpc(): void {
+let boardWatcher: FSWatcher | null = null
+
+// Track whether the app itself just wrote the file so we don't reload on our own writes.
+let suppressNext = false
+export function suppressNextExternalChange(): void {
+  suppressNext = true
+}
+
+export function registerBoardIpc(getWindow: () => BrowserWindow | null): void {
+  // Watch for external writes (e.g. MCP server) and notify the renderer.
+  boardWatcher = watch(board.path, () => {
+    if (suppressNext) {
+      suppressNext = false
+      return
+    }
+    getWindow()?.webContents.send('board:external-change')
+  })
+
   ipcMain.handle('board:listLocal', () => {
     const cards = board.get('localCards')
     return { data: applyOverrides(cards), error: null }
@@ -50,6 +69,7 @@ export function registerBoardIpc(): void {
       updatedAt: now,
     }
     const cards = board.get('localCards')
+    suppressNextExternalChange()
     board.set('localCards', [...cards, card])
     return { data: card, error: null }
   })
@@ -68,16 +88,19 @@ export function registerBoardIpc(): void {
     }
     const next = [...cards]
     next[idx] = updated
+    suppressNextExternalChange()
     board.set('localCards', next)
     return { data: updated, error: null }
   })
 
   ipcMain.handle('board:deleteLocal', (_evt, id: string) => {
     const cards = board.get('localCards')
+    suppressNextExternalChange()
     board.set('localCards', cards.filter((c) => c.id !== id))
     const overrides = board.get('overrides')
     if (overrides[id]) {
       delete overrides[id]
+      suppressNextExternalChange()
       board.set('overrides', overrides)
     }
     return { data: true, error: null }
@@ -89,6 +112,7 @@ export function registerBoardIpc(): void {
     for (const p of patches) {
       overrides[p.id] = { column: p.column, position: p.position, updatedAt: now }
     }
+    suppressNextExternalChange()
     board.set('overrides', overrides)
 
     // Mirror into localCards so the column/position is authoritative for local items too.
@@ -96,13 +120,20 @@ export function registerBoardIpc(): void {
       const o = overrides[c.id]
       return o ? { ...c, column: o.column, position: o.position, updatedAt: now } : c
     })
+    suppressNextExternalChange()
     board.set('localCards', localCards)
 
     return { data: true, error: null }
   })
 
   ipcMain.handle('board:clearOverrides', () => {
+    suppressNextExternalChange()
     board.set('overrides', {})
     return { data: true, error: null }
   })
+}
+
+export function disposeBoardIpc(): void {
+  boardWatcher?.close()
+  boardWatcher = null
 }

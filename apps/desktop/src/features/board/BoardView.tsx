@@ -37,6 +37,10 @@ export function BoardView() {
 
   useEffect(() => { void loadLocal() }, [loadLocal])
 
+  useEffect(() => {
+    return window.api.board.onExternalChange(() => { void loadLocal() })
+  }, [loadLocal])
+
   const byColumn = useMemo(() => {
     const map: Record<ColumnId, BoardCard[]> = {
       backlog: [], todo: [], in_progress: [], review: [], done: [],

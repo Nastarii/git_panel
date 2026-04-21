@@ -3,7 +3,7 @@ import { registerTerminalIpc, disposeTerminalIpc } from './terminal'
 import { registerStoreIpc } from './store'
 import { registerAuthIpc } from './auth'
 import { registerGithubIpc } from './github'
-import { registerBoardIpc } from './board'
+import { registerBoardIpc, disposeBoardIpc } from './board'
 import { registerReposIpc } from './repos'
 import { registerDialogIpc } from './dialog'
 import { registerCloudIpc } from './cloud'
@@ -15,7 +15,7 @@ export function registerIpc(getWindow: WindowProvider): void {
   registerStoreIpc()
   registerAuthIpc(getWindow)
   registerGithubIpc()
-  registerBoardIpc()
+  registerBoardIpc(getWindow)
   registerReposIpc()
   registerDialogIpc(getWindow)
   registerCloudIpc()
@@ -23,4 +23,5 @@ export function registerIpc(getWindow: WindowProvider): void {
 
 export function disposeIpc(): void {
   disposeTerminalIpc()
+  disposeBoardIpc()
 }
