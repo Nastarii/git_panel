@@ -5,6 +5,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import type { WindowProvider } from './index'
+import { getSetting } from './store'
 import type { TerminalCreateOptions } from '@shared/types/terminal'
 
 type Session = {
@@ -37,13 +38,19 @@ function resolveShell(requested?: string): string {
 }
 
 function resolveCwd(requested?: string): string {
-  if (!requested) return os.homedir()
-  try {
-    const absolute = path.resolve(requested)
-    const stat = fs.statSync(absolute)
-    if (stat.isDirectory()) return absolute
-  } catch {
-    /* fall through to home */
+  const candidates = [
+    requested,
+    getSetting<string>('terminal.defaultCwd'),
+    process.cwd(),
+  ]
+  for (const candidate of candidates) {
+    if (!candidate) continue
+    try {
+      const absolute = path.resolve(candidate)
+      if (fs.statSync(absolute).isDirectory()) return absolute
+    } catch {
+      continue
+    }
   }
   return os.homedir()
 }

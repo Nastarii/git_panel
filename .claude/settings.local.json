@@ -6,7 +6,16 @@
       "Bash(echo \"exit $?\")",
       "Bash(GITPANEL_DATA_DIR=\"/nonexistent\" node dist/index.js)",
       "Bash(node dist/index.js)",
-      "Bash(node -e \"process.stdin.resume\\(\\);let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const r=JSON.parse\\(d\\);console.log\\(r.result.content[0].text\\)}\\)\")"
+      "Bash(node -e \"process.stdin.resume\\(\\);let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const r=JSON.parse\\(d\\);console.log\\(r.result.content[0].text\\)}\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('mcpServers',{}\\), indent=2\\)\\)\")",
+      "Bash(xargs grep *)",
+      "Read(//c/Users/UserM/AppData/Roaming/@gitpanel/desktop/**)",
+      "Read(//c/Users/UserM/AppData/Roaming/GitPanel/**)",
+      "Read(//c/Users/UserM/AppData/Roaming/Electron/**)",
+      "mcp__gitpanel__get_board_summary",
+      "mcp__gitpanel__list_cards",
+      "mcp__gitpanel__list_projects",
+      "mcp__gitpanel__create_task"
     ]
   }
 }

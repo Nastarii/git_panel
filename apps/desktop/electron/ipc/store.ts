@@ -17,6 +17,11 @@ const store = new Store<Schema>({
   },
 })
 
+export function getSetting<T>(key: string): T | undefined {
+  const settings = store.get('settings') as Record<string, unknown>
+  return settings[key] as T | undefined
+}
+
 export function registerStoreIpc(): void {
   ipcMain.handle('store:get', (_evt, key: keyof Schema) => {
     return { data: store.get(key), error: null }

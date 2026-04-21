@@ -527,3 +527,9 @@ PORT=3333
 - [dnd-kit](https://dndkit.com)
 - [Turborepo](https://turbo.build/repo)
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
+
+---
+
+## GitPanel MCP Server
+
+@CLAUDE.mcp.md

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "gitpanel": {
+      "command": "node",
+      "args": ["C:/Users/UserM/Documents/GOAT_projects/git_panel/apps/mcp-server/dist/index.js"],
+      "type": "stdio"
+    }
+  }
+}
