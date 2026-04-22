@@ -9,6 +9,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
 import { randomUUID } from 'node:crypto'
+import { spawn } from 'node:child_process'
 import { Octokit } from '@octokit/rest'
 
 // ---------------------------------------------------------------------------
@@ -121,6 +122,20 @@ interface ReposStore {
   watched: WatchedRepo[]
 }
 
+interface SavedCommand {
+  id: string
+  name: string
+  command: string
+  repoId?: string
+  createdAt: string
+}
+
+// electron-store persists everything in config.json as a flat key-value object
+interface ElectronStoreConfig {
+  savedCommands?: SavedCommand[]
+  [key: string]: unknown
+}
+
 const COLUMNS: ColumnId[] = ['backlog', 'todo', 'in_progress', 'review', 'done']
 
 // ---------------------------------------------------------------------------
@@ -150,6 +165,20 @@ function readRepos(): WatchedRepo[] {
   } catch {
     return []
   }
+}
+
+function readConfig(): ElectronStoreConfig {
+  const file = path.join(DATA_DIR, 'config.json')
+  if (!existsSync(file)) return {}
+  try {
+    return JSON.parse(readFileSync(file, 'utf8')) as ElectronStoreConfig
+  } catch {
+    return {}
+  }
+}
+
+function readCommands(): SavedCommand[] {
+  return readConfig().savedCommands ?? []
 }
 
 function applyOverrides(cards: BoardCard[], overrides: Record<string, Override>): BoardCard[] {
@@ -253,6 +282,24 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         type: 'object',
         properties: {
           kind: { type: 'string', enum: ['github', 'local'], description: 'Filter by kind' },
+        },
+        required: [],
+      },
+    },
+    {
+      name: 'list_commands',
+      description: 'Lists all saved commands configured in the GitPanel Commands tab. Returns each command\'s ID, name, shell command, and the associated project/repo.',
+      inputSchema: { type: 'object', properties: {}, required: [] },
+    },
+    {
+      name: 'run_command',
+      description: 'Executes a saved GitPanel command by ID or name and returns the output. The command runs in the project\'s configured working directory. Use a timeout_ms to cap execution time for long-running processes.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'Saved command ID (from list_commands)' },
+          name: { type: 'string', description: 'Saved command name (used if id is not provided)' },
+          timeout_ms: { type: 'number', description: 'Max milliseconds to wait for the process (default 15000)' },
         },
         required: [],
       },
@@ -494,6 +541,100 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
 
         return { content: [{ type: 'text', text: sections.join('\n') }] }
+      }
+
+      case 'list_commands': {
+        const commands = readCommands()
+        if (commands.length === 0) {
+          return { content: [{ type: 'text', text: 'No saved commands. Add some in the GitPanel Commands tab.' }] }
+        }
+        const repos = readRepos()
+        const repoMap = new Map(repos.map((r) => [r.id, r]))
+
+        const lines = commands.map((cmd) => {
+          const repo = cmd.repoId ? repoMap.get(cmd.repoId) : undefined
+          const cwd = repo?.localPath ?? '(home directory)'
+          const project = repo ? `${repo.fullName}` : '(no project)'
+          return [
+            `[${cmd.id}]`,
+            `  name    : ${cmd.name}`,
+            `  command : ${cmd.command}`,
+            `  project : ${project}`,
+            `  cwd     : ${cwd}`,
+          ].join('\n')
+        })
+        return { content: [{ type: 'text', text: `Saved commands (${commands.length}):\n\n${lines.join('\n\n')}` }] }
+      }
+
+      case 'run_command': {
+        const commands = readCommands()
+        const id = a['id'] as string | undefined
+        const name = (a['name'] as string | undefined)?.toLowerCase()
+        const timeoutMs = (a['timeout_ms'] as number | undefined) ?? 15_000
+
+        const cmd = id
+          ? commands.find((c) => c.id === id)
+          : commands.find((c) => c.name.toLowerCase() === name)
+
+        if (!cmd) {
+          const qualifier = id ? `id "${id}"` : `name "${String(a['name'])}"`
+          throw new Error(`No saved command found with ${qualifier}. Use list_commands to see available commands.`)
+        }
+
+        const repos = readRepos()
+        const repo = cmd.repoId ? repos.find((r) => r.id === cmd.repoId) : undefined
+        const cwd = repo?.localPath ?? os.homedir()
+
+        const stdout: string[] = []
+        const stderr: string[] = []
+
+        const result = await new Promise<{ exitCode: number | null; timedOut: boolean }>((resolve) => {
+          const isWindows = process.platform === 'win32'
+          const shell = isWindows ? 'cmd.exe' : '/bin/sh'
+          const shellFlag = isWindows ? '/c' : '-c'
+
+          const child = spawn(shell, [shellFlag, cmd.command], {
+            cwd,
+            env: process.env,
+            windowsHide: true,
+          })
+
+          child.stdout.on('data', (d: Buffer) => stdout.push(d.toString()))
+          child.stderr.on('data', (d: Buffer) => stderr.push(d.toString()))
+
+          const timer = setTimeout(() => {
+            child.kill()
+            resolve({ exitCode: null, timedOut: true })
+          }, timeoutMs)
+
+          child.on('close', (code) => {
+            clearTimeout(timer)
+            resolve({ exitCode: code, timedOut: false })
+          })
+        })
+
+        const stdoutText = stdout.join('').trim()
+        const stderrText = stderr.join('').trim()
+
+        const lines: string[] = [
+          `Command : ${cmd.command}`,
+          `CWD     : ${cwd}`,
+          result.timedOut
+            ? `Status  : timed out after ${timeoutMs}ms (partial output below)`
+            : `Exit    : ${result.exitCode ?? 'unknown'}`,
+          '',
+        ]
+        if (stdoutText) {
+          lines.push('── stdout ──')
+          lines.push(stdoutText)
+        }
+        if (stderrText) {
+          lines.push('── stderr ──')
+          lines.push(stderrText)
+        }
+        if (!stdoutText && !stderrText) lines.push('(no output)')
+
+        return { content: [{ type: 'text', text: lines.join('\n') }] }
       }
 
       case 'create_github_issue': {

@@ -27,13 +27,18 @@ const theme = {
   brightWhite: '#f0f6fc',
 }
 
+// Tracks which terminal IDs have already had their initial command sent,
+// so remounting the component doesn't replay it.
+const sentInitialCommands = new Set<string>()
+
 type UseTerminalArgs = {
   containerRef: React.RefObject<HTMLDivElement>
   termId: string
   active: boolean
+  initialCommand?: string
 }
 
-export function useTerminal({ containerRef, termId, active }: UseTerminalArgs): void {
+export function useTerminal({ containerRef, termId, active, initialCommand }: UseTerminalArgs): void {
   const xtermRef = useRef<Terminal | null>(null)
   const fitRef = useRef<FitAddon | null>(null)
 
@@ -78,7 +83,16 @@ export function useTerminal({ containerRef, termId, active }: UseTerminalArgs): 
     // initial sync so PTY matches xterm's computed size
     handleResize()
 
+    let initialTimer: ReturnType<typeof setTimeout> | undefined
+    if (initialCommand && !sentInitialCommands.has(termId)) {
+      initialTimer = setTimeout(() => {
+        sentInitialCommands.add(termId)
+        window.api.terminal.input(termId, initialCommand + '\r')
+      }, 500)
+    }
+
     return () => {
+      clearTimeout(initialTimer)
       ro.disconnect()
       window.removeEventListener('resize', handleResize)
       dataDisposable.dispose()
@@ -88,7 +102,7 @@ export function useTerminal({ containerRef, termId, active }: UseTerminalArgs): 
       xtermRef.current = null
       fitRef.current = null
     }
-  }, [containerRef, termId])
+  }, [containerRef, termId, initialCommand])
 
   useEffect(() => {
     if (active && xtermRef.current && fitRef.current) {

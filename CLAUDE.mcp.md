@@ -13,6 +13,8 @@ GitPanel exposes a local MCP server that gives Claude direct access to the board
 | User asks to move a card, mark as done, start working | `move_card` |
 | User asks to delete or remove a task | `delete_task` |
 | User asks to open a GitHub issue from a task | `create_github_issue` |
+| User asks what commands are saved / configured | `list_commands` |
+| User asks to run a saved command (e.g. "run the dev server for X") | `run_command` |
 
 ## Available tools
 
@@ -95,6 +97,26 @@ title   — required
 body?   — issue body (markdown)
 labels? — string array
 ```
+
+### `list_commands`
+Lists all saved commands from the GitPanel Commands tab.
+
+```
+No parameters.
+```
+
+Returns each command's ID, name, shell command, associated project, and working directory.
+
+### `run_command`
+Executes a saved command and returns its output.
+
+```
+id?          — command ID (from list_commands)
+name?        — command name (used if id is not provided)
+timeout_ms?  — max milliseconds to wait (default 15000)
+```
+
+One of `id` or `name` is required. For long-running processes (e.g. `npm run dev`), the command will run until `timeout_ms` and return partial output.
 
 ## Accessing local project files (e.g. Obsidian vault)
 

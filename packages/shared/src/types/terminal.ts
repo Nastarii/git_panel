@@ -11,6 +11,7 @@ export type TerminalTab = {
   cwd: string
   shell: string
   createdAt: string
+  initialCommand?: string
 }
 
 export type TerminalResizePayload = {

@@ -24,7 +24,7 @@ export function TerminalPanel() {
       <div className="flex-1 relative">
         {tabs.map((t) => (
           <div key={t.id} className="absolute inset-0">
-            <TerminalView id={t.id} active={t.id === activeId} />
+            <TerminalView id={t.id} active={t.id === activeId} initialCommand={t.initialCommand} />
           </div>
         ))}
         {tabs.length === 0 && (

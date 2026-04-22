@@ -9,6 +9,7 @@ import { MetricsView } from '@/features/metrics/MetricsView'
 import { TeamView } from '@/features/team/TeamView'
 import { SettingsView } from '@/features/settings/SettingsView'
 import { TerminalPanel } from '@/features/terminal/TerminalPanel'
+import { CommandsView } from '@/features/commands/CommandsView'
 
 export function App() {
   const view = useUIStore((s) => s.view)
@@ -28,6 +29,7 @@ export function App() {
             {view === 'metrics' && <MetricsView />}
             {view === 'team' && <TeamView />}
             {view === 'settings' && <SettingsView />}
+            {view === 'commands' && <CommandsView />}
           </section>
           {terminalOpen && (
             <section className="h-80 shrink-0 border-t border-panel-border">

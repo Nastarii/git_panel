@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type View = 'board' | 'repos' | 'metrics' | 'team' | 'terminal' | 'settings'
+export type View = 'board' | 'repos' | 'metrics' | 'team' | 'terminal' | 'settings' | 'commands'
 
 type UIState = {
   view: View

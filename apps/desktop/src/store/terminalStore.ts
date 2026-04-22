@@ -5,7 +5,7 @@ type TerminalState = {
   tabs: TerminalTab[]
   activeTabId: string | null
 
-  openTab: (cwd?: string, label?: string, shell?: string) => Promise<string>
+  openTab: (cwd?: string, label?: string, shell?: string, initialCommand?: string) => Promise<string>
   closeTab: (id: string) => Promise<void>
   setActive: (id: string) => void
   renameTab: (id: string, label: string) => void
@@ -15,7 +15,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
   tabs: [],
   activeTabId: null,
 
-  openTab: async (cwd, label, shell) => {
+  openTab: async (cwd, label, shell, initialCommand) => {
     const result = await window.api.terminal.create({ cwd, shell })
     const tab: TerminalTab = {
       id: result.id,
@@ -23,6 +23,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
       cwd: result.cwd,
       shell: result.shell,
       createdAt: new Date().toISOString(),
+      initialCommand,
     }
     set((s) => ({ tabs: [...s.tabs, tab], activeTabId: tab.id }))
     return tab.id
