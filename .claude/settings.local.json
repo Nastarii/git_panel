@@ -15,7 +15,25 @@
       "mcp__gitpanel__get_board_summary",
       "mcp__gitpanel__list_cards",
       "mcp__gitpanel__list_projects",
-      "mcp__gitpanel__create_task"
+      "mcp__gitpanel__create_task",
+      "Bash(where inkscape *)",
+      "Bash(where magick *)",
+      "Bash(node -e \"require\\('sharp'\\)\")",
+      "Read(//c/Program Files/Inkscape/**)",
+      "Read(//c/Program Files \\(x86\\)/**)",
+      "Bash(mkdir -p public)",
+      "Bash(\"C:/Program Files/Inkscape/bin/inkscape.exe\" --export-type=png --export-filename=\"electron/assets/icon.png\" --export-area-drawing --export-width=512 --export-height=512 \"electron/assets/git_panel_logo.svg\")",
+      "Bash(npm run *)",
+      "Bash(node -e \"const e = require\\('./node_modules/electron'\\); console.log\\(typeof e, JSON.stringify\\(Object.keys\\(e || {}\\)\\)\\)\")",
+      "Bash(node \"c:/Users/UserM/Documents/GOAT_projects/git_panel/node_modules/electron/index.js\")",
+      "Bash(\"c:/Users/UserM/Documents/GOAT_projects/git_panel/node_modules/electron/dist/electron.exe\" --version)",
+      "Bash(node node_modules/electron/install.js)",
+      "Bash(node_modules/electron/dist/electron.exe --version)",
+      "Bash(cp /tmp/test_electron2.js \"c:/Users/UserM/Documents/GOAT_projects/git_panel/apps/desktop/test_electron.js\")",
+      "Bash(\"c:/Users/UserM/Documents/GOAT_projects/git_panel/node_modules/electron/dist/electron.exe\" \"c:/Users/UserM/Documents/GOAT_projects/git_panel/apps/desktop/test_electron.js\")",
+      "Bash(node -e \"const {execSync} = require\\('child_process'\\); try { console.log\\(execSync\\('npm view electron-vite versions --json', {encoding:'utf8'}\\).split\\(','\\).slice\\(-5\\).join\\(','\\)\\) } catch\\(e\\) { console.log\\(e.message\\) }\")",
+      "Bash(node -e ' *)",
+      "Bash(cat)"
     ]
   }
 }

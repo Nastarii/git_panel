@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, shell, nativeImage } from 'electron'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { registerIpc, disposeIpc } from './ipc'
@@ -10,9 +10,13 @@ const __dirname = path.dirname(__filename)
 const isDev = !app.isPackaged
 const DEV_URL = process.env['ELECTRON_RENDERER_URL']
 
+const iconPath = path.join(__dirname, '../../electron/assets/icon.png')
+
 let mainWindow: BrowserWindow | null = null
 
 function createWindow(): BrowserWindow {
+  const icon = nativeImage.createFromPath(iconPath)
+
   const win = new BrowserWindow({
     width: 1440,
     height: 900,
@@ -20,7 +24,8 @@ function createWindow(): BrowserWindow {
     minHeight: 600,
     show: false,
     autoHideMenuBar: true,
-    backgroundColor: '#0d1117',
+    backgroundColor: '#0f0d0c',
+    icon,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),

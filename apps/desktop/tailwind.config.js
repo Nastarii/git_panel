@@ -5,12 +5,13 @@ export default {
     extend: {
       colors: {
         panel: {
-          bg: '#0d1117',
-          surface: '#161b22',
-          border: '#30363d',
-          muted: '#8b949e',
-          text: '#c9d1d9',
-          accent: '#58a6ff',
+          bg: '#0f0d0c',
+          surface: '#1a1614',
+          border: '#2e2826',
+          muted: '#8a8280',
+          text: '#d4cdc9',
+          accent: '#f24e0e',
+          'accent-dim': '#b83a0a',
           success: '#3fb950',
           warning: '#d29922',
           danger: '#f85149',

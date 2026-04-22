@@ -32,7 +32,7 @@ export function Sidebar() {
   return (
     <aside className="w-52 shrink-0 flex-col border-r border-panel-border bg-panel-surface/40 flex">
       <div className="flex items-center gap-2 px-4 py-4 border-b border-panel-border">
-        <div className="h-6 w-6 rounded bg-panel-accent/20 text-panel-accent text-sm font-bold flex items-center justify-center">G</div>
+        <img src="/icon.png" alt="GitPanel" className="h-6 w-6 shrink-0" />
         <span className="text-sm font-semibold tracking-tight">GitPanel</span>
       </div>
       <nav className="flex-1 overflow-y-auto p-2">
