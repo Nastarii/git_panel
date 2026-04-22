@@ -9,6 +9,7 @@ import {
   type DragOverEvent,
   type DragStartEvent,
 } from '@dnd-kit/core'
+import { getEventCoordinates } from '@dnd-kit/utilities'
 import type { BoardCard, CardPatch, ColumnId } from '@shared/types/board'
 import { COLUMNS } from '@shared/types/board'
 import { useBoardStore } from '@/store/boardStore'
@@ -30,6 +31,7 @@ export function BoardView() {
   const authMode = useAuthStore((s) => s.status?.mode ?? 'none')
 
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [overlayOffset, setOverlayOffset] = useState({ x: 0, y: 0 })
   const [dialogCard, setDialogCard] = useState<BoardCard | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -54,6 +56,16 @@ export function BoardView() {
 
   function handleDragStart(e: DragStartEvent) {
     setActiveId(String(e.active.id))
+    const rect = e.active.rect.current.initial
+    const coords = getEventCoordinates(e.activatorEvent as Event)
+    if (rect && coords) {
+      setOverlayOffset({
+        x: (coords.x - rect.left) - rect.width / 2,
+        y: (coords.y - rect.top) - rect.height / 2,
+      })
+    } else {
+      setOverlayOffset({ x: 0, y: 0 })
+    }
   }
 
   function resolveTargetColumn(
@@ -176,7 +188,11 @@ export function BoardView() {
           ))}
         </div>
         <DragOverlay>
-          {active && <BoardCardView card={active} />}
+          {active && (
+            <div style={{ transform: `translate(${overlayOffset.x}px, ${overlayOffset.y}px)` }}>
+              <BoardCardView card={active} />
+            </div>
+          )}
         </DragOverlay>
       </DndContext>
 

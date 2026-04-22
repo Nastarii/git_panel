@@ -35,7 +35,8 @@
       "Bash(node -e ' *)",
       "Bash(cat)",
       "Bash(awk '{print \"  \" $0}')",
-      "Bash(node -e \"require\\('lucide-react'\\)\")"
+      "Bash(node -e \"require\\('lucide-react'\\)\")",
+      "Bash(node -e \"const u = require\\('c:/Users/UserM/Documents/GOAT_projects/git_panel/apps/desktop/node_modules/@dnd-kit/utilities/dist/utilities.cjs.js'\\); console.log\\(Object.keys\\(u\\)\\)\")"
     ]
   }
 }
