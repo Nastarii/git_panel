@@ -35,6 +35,7 @@ Thumbs.db
 !.vscode/extensions.json
 !.vscode/settings.json
 .idea/
+.claude/
 
 # Prisma
 apps/api/prisma/migrations/dev/
