@@ -31,7 +31,7 @@ export function SplashScreen({ onDone }: Props) {
         }}
       >
         <img
-          src="/icon.png"
+          src="/git_panel_logo.svg"
           alt="GitPanel"
           style={{ width: 112, height: 112, display: 'block' }}
         />
