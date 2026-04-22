@@ -1,0 +1,20 @@
+appId: com.gitpanel.desktop
+productName: GitPanel
+
+directories:
+  output: dist
+  buildResources: electron/assets
+
+win:
+  icon: electron/assets/icon.ico
+  target:
+    - target: nsis
+      arch: [x64]
+
+mac:
+  icon: electron/assets/icon.icns
+  target: dmg
+
+linux:
+  icon: electron/assets/icon.png
+  target: AppImage

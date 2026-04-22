@@ -7,10 +7,13 @@ import { getEnv } from './env'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+app.setAppUserModelId('com.gitpanel.desktop')
+
 const isDev = !app.isPackaged
 const DEV_URL = process.env['ELECTRON_RENDERER_URL']
 
-const iconPath = path.join(__dirname, '../../electron/assets/icon.png')
+const iconExt = process.platform === 'win32' ? 'ico' : process.platform === 'darwin' ? 'icns' : 'png'
+const iconPath = path.join(__dirname, `../../electron/assets/icon.${iconExt}`)
 
 let mainWindow: BrowserWindow | null = null
 
@@ -46,7 +49,10 @@ function createWindow(): BrowserWindow {
   win.on('maximize', () => win.webContents.send('window:maximizeChange', true))
   win.on('unmaximize', () => win.webContents.send('window:maximizeChange', false))
 
-  win.once('ready-to-show', () => win.show())
+  win.once('ready-to-show', () => {
+    win.setIcon(icon)
+    win.show()
+  })
 
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url)
