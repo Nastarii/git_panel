@@ -149,7 +149,7 @@ export function BoardView() {
               {syncing ? 'Syncing…' : 'Sync GitHub'}
             </button>
           )}
-          <button onClick={openNew} className="btn-primary">+ New task</button>
+          <button onClick={openNew} className="btn-solid">+ New task</button>
         </div>
       </header>
 

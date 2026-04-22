@@ -1,16 +1,26 @@
 import { useEffect } from 'react'
 import clsx from 'clsx'
+import {
+  Kanban,
+  Zap,
+  BarChart3,
+  Users,
+  SquareTerminal,
+  Settings,
+  type LucideIcon,
+  FolderGit2,
+} from 'lucide-react'
 import { useUIStore, type View } from '@/store/uiStore'
 import { useAuthStore } from '@/store/authStore'
 
-const links: Array<{ id: View; label: string; icon: string }> = [
-  { id: 'board', label: 'Board', icon: '▤' },
-  { id: 'repos', label: 'Projects', icon: '▣' },
-  { id: 'commands', label: 'Commands', icon: '⚡' },
-  { id: 'metrics', label: 'Metrics', icon: '▲' },
-  { id: 'team', label: 'Team', icon: '●' },
-  { id: 'terminal', label: 'Terminal', icon: '>_' },
-  { id: 'settings', label: 'Settings', icon: '⚙' },
+const links: Array<{ id: View; label: string; Icon: LucideIcon }> = [
+  { id: 'board',    label: 'Board',    Icon: Kanban },
+  { id: 'repos',    label: 'Projects', Icon: FolderGit2 },
+  { id: 'commands', label: 'Commands', Icon: Zap },
+  { id: 'metrics',  label: 'Metrics',  Icon: BarChart3 },
+  { id: 'team',     label: 'Team',     Icon: Users },
+  { id: 'terminal', label: 'Terminal', Icon: SquareTerminal },
+  { id: 'settings', label: 'Settings', Icon: Settings },
 ]
 
 function modeLabel(mode: string): string {
@@ -45,7 +55,7 @@ export function Sidebar() {
               view === link.id && link.id !== 'terminal' && 'sidebar-link-active',
             )}
           >
-            <span className="font-mono text-xs w-4 text-center">{link.icon}</span>
+            <link.Icon size={15} strokeWidth={1.6} />
             <span>{link.label}</span>
           </div>
         ))}

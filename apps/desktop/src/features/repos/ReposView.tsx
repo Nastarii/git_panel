@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { FolderOpen, FolderCheck } from 'lucide-react'
 import { useReposStore } from '@/store/reposStore'
 import { useAuthStore } from '@/store/authStore'
 import { useBoardStore } from '@/store/boardStore'
@@ -154,7 +155,7 @@ export function ReposView() {
               placeholder="owner/repo"
               className="flex-1 rounded border border-panel-border bg-panel-bg px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-panel-accent"
             />
-            <button onClick={() => void handleAddGithub()} className="btn-primary">Add</button>
+            <button onClick={() => void handleAddGithub()} className="btn-solid">Add</button>
           </div>
           <div className="mt-3 space-y-1">
             {githubRepos.length === 0 ? (
@@ -192,9 +193,9 @@ export function ReposView() {
               className="flex-1 rounded border border-panel-border bg-panel-bg px-3 py-1.5 text-sm focus:outline-none focus:border-panel-accent"
             />
             <button onClick={() => void pickFolder(setLocalPathInput)} className="btn" title="Link a folder">
-              {localPath ? '📁 linked' : '📁 Folder'}
+              {localPath ? <><FolderCheck size={14} /> linked</> : <><FolderOpen size={14} /> Folder</>}
             </button>
-            <button onClick={() => void handleAddLocal()} className="btn-primary">Add</button>
+            <button onClick={() => void handleAddLocal()} className="btn-solid">Add</button>
           </div>
           {localPath && (
             <div className="mt-1 text-[10px] text-panel-muted font-mono truncate">{localPath}</div>

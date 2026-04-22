@@ -144,7 +144,7 @@ export function RepoPicker({ open, onClose, onAdded }: Props) {
                   checked={alreadyWatched || isSelected}
                   disabled={alreadyWatched}
                   readOnly
-                  className="mt-1"
+                  className="mt-1 accent-[#f24e0e]"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -191,7 +191,7 @@ export function RepoPicker({ open, onClose, onAdded }: Props) {
             <button
               onClick={() => void confirm()}
               disabled={selected.size === 0 || adding}
-              className="btn-primary disabled:opacity-50"
+              className="btn-solid disabled:opacity-50"
             >
               {adding ? 'Adding…' : `Add ${selected.size || ''}`.trim()}
             </button>

@@ -24,12 +24,12 @@ export function App() {
         <Sidebar />
         <main className="flex-1 flex flex-col min-w-0">
           <section className="flex-1 min-h-0 overflow-hidden">
-            {view === 'board' && <BoardView />}
-            {view === 'repos' && <ReposView />}
-            {view === 'metrics' && <MetricsView />}
-            {view === 'team' && <TeamView />}
-            {view === 'settings' && <SettingsView />}
-            {view === 'commands' && <CommandsView />}
+            {view === 'board' && <div key="board" className="view-animate h-full"><BoardView /></div>}
+            {view === 'repos' && <div key="repos" className="view-animate h-full"><ReposView /></div>}
+            {view === 'metrics' && <div key="metrics" className="view-animate h-full"><MetricsView /></div>}
+            {view === 'team' && <div key="team" className="view-animate h-full"><TeamView /></div>}
+            {view === 'settings' && <div key="settings" className="view-animate h-full"><SettingsView /></div>}
+            {view === 'commands' && <div key="commands" className="view-animate h-full"><CommandsView /></div>}
           </section>
           {terminalOpen && (
             <section className="h-80 shrink-0 border-t border-panel-border">

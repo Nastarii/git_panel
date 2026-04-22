@@ -34,7 +34,8 @@
       "Bash(node -e \"const {execSync} = require\\('child_process'\\); try { console.log\\(execSync\\('npm view electron-vite versions --json', {encoding:'utf8'}\\).split\\(','\\).slice\\(-5\\).join\\(','\\)\\) } catch\\(e\\) { console.log\\(e.message\\) }\")",
       "Bash(node -e ' *)",
       "Bash(cat)",
-      "Bash(awk '{print \"  \" $0}')"
+      "Bash(awk '{print \"  \" $0}')",
+      "Bash(node -e \"require\\('lucide-react'\\)\")"
     ]
   }
 }

@@ -250,7 +250,7 @@ export function CardDialog({ open, card, onClose }: Props) {
               <button
                 onClick={() => void save()}
                 disabled={!title.trim() || submitting}
-                className="btn-primary disabled:opacity-50"
+                className="btn-solid disabled:opacity-50"
               >
                 {submitting
                   ? 'Saving…'
