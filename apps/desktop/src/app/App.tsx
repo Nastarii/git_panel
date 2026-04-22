@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useUIStore } from '@/store/uiStore'
 import { Sidebar } from './Sidebar'
 import { SplashScreen } from './SplashScreen'
+import { TitleBar } from './TitleBar'
 import { BoardView } from '@/features/board/BoardView'
 import { ReposView } from '@/features/repos/ReposView'
 import { MetricsView } from '@/features/metrics/MetricsView'
@@ -15,23 +16,26 @@ export function App() {
   const [splash, setSplash] = useState(true)
 
   return (
-    <div className="flex h-full w-full">
+    <div className="flex flex-col h-full w-full">
       {splash && <SplashScreen onDone={() => setSplash(false)} />}
-      <Sidebar />
-      <main className="flex-1 flex flex-col min-w-0">
-        <section className="flex-1 min-h-0 overflow-hidden">
-          {view === 'board' && <BoardView />}
-          {view === 'repos' && <ReposView />}
-          {view === 'metrics' && <MetricsView />}
-          {view === 'team' && <TeamView />}
-          {view === 'settings' && <SettingsView />}
-        </section>
-        {terminalOpen && (
-          <section className="h-80 shrink-0 border-t border-panel-border">
-            <TerminalPanel />
+      <TitleBar />
+      <div className="flex flex-1 min-h-0 w-full">
+        <Sidebar />
+        <main className="flex-1 flex flex-col min-w-0">
+          <section className="flex-1 min-h-0 overflow-hidden">
+            {view === 'board' && <BoardView />}
+            {view === 'repos' && <ReposView />}
+            {view === 'metrics' && <MetricsView />}
+            {view === 'team' && <TeamView />}
+            {view === 'settings' && <SettingsView />}
           </section>
-        )}
-      </main>
+          {terminalOpen && (
+            <section className="h-80 shrink-0 border-t border-panel-border">
+              <TerminalPanel />
+            </section>
+          )}
+        </main>
+      </div>
     </div>
   )
 }

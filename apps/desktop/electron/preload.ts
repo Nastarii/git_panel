@@ -121,6 +121,18 @@ const dialog = {
     ipcRenderer.invoke('dialog:selectDirectory', defaultPath),
 }
 
+const windowControls = {
+  minimize: (): void => ipcRenderer.send('window:minimize'),
+  maximize: (): void => ipcRenderer.send('window:maximize'),
+  close: (): void => ipcRenderer.send('window:close'),
+  isMaximized: (): Promise<boolean> => ipcRenderer.invoke('window:isMaximized'),
+  onMaximizeChange: (cb: (maximized: boolean) => void): (() => void) => {
+    const handler = (_e: IpcRendererEvent, maximized: boolean) => cb(maximized)
+    ipcRenderer.on('window:maximizeChange', handler)
+    return () => ipcRenderer.removeListener('window:maximizeChange', handler)
+  },
+}
+
 const cloud = {
   status: (): Promise<ApiResult<{ connected: boolean; apiUrl: string | null }>> =>
     ipcRenderer.invoke('cloud:status'),
@@ -129,7 +141,7 @@ const cloud = {
   patchCards: (): Promise<ApiResult<null>> => ipcRenderer.invoke('cloud:patchCards'),
 }
 
-export const api = { terminal, store, auth, github, board, repos, dialog, cloud }
+export const api = { terminal, store, auth, github, board, repos, dialog, cloud, windowControls }
 export type GitPanelApi = typeof api
 
 contextBridge.exposeInMainWorld('api', api)

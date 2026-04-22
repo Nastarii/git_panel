@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, nativeImage } from 'electron'
+import { app, BrowserWindow, shell, nativeImage, ipcMain } from 'electron'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { registerIpc, disposeIpc } from './ipc'
@@ -26,7 +26,8 @@ function createWindow(): BrowserWindow {
     autoHideMenuBar: true,
     backgroundColor: '#0f0d0c',
     icon,
-    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    frame: process.platform !== 'darwin',
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -34,6 +35,16 @@ function createWindow(): BrowserWindow {
       sandbox: false,
     },
   })
+
+  ipcMain.handle('window:isMaximized', () => win.isMaximized())
+  ipcMain.on('window:minimize', () => win.minimize())
+  ipcMain.on('window:maximize', () => {
+    win.isMaximized() ? win.unmaximize() : win.maximize()
+  })
+  ipcMain.on('window:close', () => win.close())
+
+  win.on('maximize', () => win.webContents.send('window:maximizeChange', true))
+  win.on('unmaximize', () => win.webContents.send('window:maximizeChange', false))
 
   win.once('ready-to-show', () => win.show())
 
