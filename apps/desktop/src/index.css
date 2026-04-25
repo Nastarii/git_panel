@@ -33,6 +33,13 @@
   animation: view-in 0.18s ease-out backwards;
 }
 
+/* scrollbars */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2e2826; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3e3432; }
+::-webkit-scrollbar-corner { background: transparent; }
+
 /* xterm.js container */
 .xterm-container { padding: 8px; }
 .xterm .xterm-viewport { background-color: transparent !important; }

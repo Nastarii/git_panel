@@ -62,7 +62,7 @@ export function TitleBar() {
     >
       {/* Left: logo + title */}
       <div className="flex items-center gap-2 px-3">
-        <img src="/git_panel_logo.svg" alt="" style={{ width: 14, height: 14 }} />
+        <img src="./git_panel_logo.svg" alt="" style={{ width: 14, height: 14 }} />
         <span className="text-panel-muted text-xs font-medium tracking-wide select-none">
           GitPanel
         </span>
