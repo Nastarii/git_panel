@@ -225,6 +225,10 @@ async function pollDeviceFlow(
   flow.timer = setTimeout(() => void pollDeviceFlow(clientId, flow, getWindow), flow.interval * 1000)
 }
 
+export function disposeAuthIpc(): void {
+  cancelFlow()
+}
+
 // --- IPC -----------------------------------------------------------------
 export function registerAuthIpc(getWindow: WindowProvider): void {
   ipcMain.handle('auth:status', async () => {

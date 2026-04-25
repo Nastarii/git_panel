@@ -1,7 +1,7 @@
 import type { BrowserWindow } from 'electron'
 import { registerTerminalIpc, disposeTerminalIpc } from './terminal'
 import { registerStoreIpc } from './store'
-import { registerAuthIpc } from './auth'
+import { registerAuthIpc, disposeAuthIpc } from './auth'
 import { registerGithubIpc } from './github'
 import { registerBoardIpc, disposeBoardIpc } from './board'
 import { registerReposIpc } from './repos'
@@ -24,4 +24,5 @@ export function registerIpc(getWindow: WindowProvider): void {
 export function disposeIpc(): void {
   disposeTerminalIpc()
   disposeBoardIpc()
+  disposeAuthIpc()
 }
