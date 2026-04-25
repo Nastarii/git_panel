@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "GitPanel desktop app",
+  "author": "Lucas",
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "node scripts/dev.js",
@@ -39,7 +40,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
-    "electron": "^31.0.0",
+    "electron": "31.7.7",
     "electron-builder": "^24.13.3",
     "electron-vite": "^2.3.0",
     "postcss": "^8.4.39",
